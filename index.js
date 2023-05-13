@@ -8,7 +8,7 @@ const passport = require("./Config/passport");
 
 const client_route = require("./Routes/Client_Route");
 const product_route = require("./Routes/Product_Route");
-const order = require("./Routes/Client_Route");
+const order_route = require("./Routes/Order_Route");
 const Client = require("./Models/Model_Client");
 
 const dotenv = require("dotenv");
@@ -22,10 +22,10 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Middleware d'authentification Bearer
-
-app.use("/client_api", client_route);
-app.use("/product_api", product_route);
-app.use("/order", order);
+const Secure_Route = passport.authenticate("bearer", { session: false });
+app.use("/client_api", client_route); // all client route securet in exception ( register & login --> see client_Route )
+app.use("/product_api", Secure_Route, product_route);
+app.use("/order", Secure_Route, order_route);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
