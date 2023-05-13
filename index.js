@@ -22,8 +22,8 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Middleware d'authentification Bearer
-const Secure_Route = passport.authenticate("bearer", { session: false });
-app.use("/client_api", client_route); // all client route securet in exception ( register & login --> see client_Route )
+// see Route we can have an ideas for the secure routes
+app.use("/client_api", client_route);
 app.use("/product_api", Secure_Route, product_route);
 app.use("/order", Secure_Route, order_route);
 
