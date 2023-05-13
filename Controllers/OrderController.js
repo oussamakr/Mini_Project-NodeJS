@@ -20,24 +20,37 @@ exports.Creat_Order = async (req, res) => {
     // Vérifier et diminuer les quantités des produits
     const updatedProducts = await Promise.all(
       orderedProducts.map(async (product) => {
-        const orderedProduct = products.find((p) => p.productId == product._id);
-        const orderedQuantity = orderedProduct.quantity;
+        try {
+          const orderedProduct = products.find(
+            (p) => p.productId == product._id
+          );
+          const orderedQuantity = orderedProduct.quantity;
+          if (product.quantity == 0) {
+            return res.status(400).send({ message: "out of stock" });
+          }
+          if (product.quantity < orderedQuantity) {
+            await Product.updateOne(
+              { _id: product._id },
+              { $inc: { quantity: -product.quantity } }
+            );
+            const missed_qty = orderedQuantity - product.quantity;
+            return res.send({
+              message: `you have buy all exissting quantity but you missed ${missed_qty} regarding for your request ${orderedQuantity}`,
+            });
+          }
 
-        if (product.quantity < orderedQuantity) {
-          return res.status(409).send({
-            message: "Insufficient quantity for product " + product.name,
-          });
+          await Product.updateOne(
+            { _id: product._id },
+            { $inc: { quantity: -orderedQuantity } }
+          );
+
+          return {
+            ...product.toObject(),
+            quantity: orderedQuantity,
+          };
+        } catch (error) {
+          res.status(500).send({ message: error });
         }
-
-        await Product.updateOne(
-          { _id: product._id },
-          { $inc: { quantity: -orderedQuantity } }
-        );
-
-        return {
-          ...product.toObject(),
-          quantity: orderedQuantity,
-        };
       })
     );
 

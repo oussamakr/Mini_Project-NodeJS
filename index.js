@@ -24,8 +24,8 @@ app.use(passport.initialize());
 // Middleware d'authentification Bearer
 // see Route we can have an ideas for the secure routes
 app.use("/client_api", client_route);
-app.use("/product_api", Secure_Route, product_route);
-app.use("/order", Secure_Route, order_route);
+app.use("/product_api", product_route);
+app.use("/order", order_route);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
